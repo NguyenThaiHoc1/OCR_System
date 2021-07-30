@@ -34,6 +34,7 @@ class BaseReader(object):
         :return:
         """
         # check annotations that match for each image
+        self.num_classes = len(self.classes)
         list_statlabels = np.zeros(self.num_classes)
         num_image_without_annotation = 0
         for index in range(len(self.data_annotation)):
@@ -46,9 +47,7 @@ class BaseReader(object):
         self.list_statlabels = list_statlabels
         self.num_image_without_annotation = num_image_without_annotation
         self.num_objects = sum(self.list_statlabels)
-
         self.colors = plt.cm.hsv(np.linspace(0, 1, len(self.classes) + 1)).tolist()  # random color for each class
-        self.num_classes = len(self.classes)
         self.num_samples = len(self.image_names)
         self.num_images = len(self.data_annotation)
 
@@ -56,6 +55,10 @@ class BaseReader(object):
             print('WARNING: empty dataset', sys.warnoptions)
 
     def __str__(self):
+        """
+        That function show all information of dataset
+        :return: None
+        """
         if not hasattr(self, 'list_statlabels'):
             self.statistics_data()
 
@@ -68,3 +71,30 @@ class BaseReader(object):
         string_text += '%-16s %8.2f\n' % ('per image', self.num_objects / self.num_images)
         string_text += '%-16s %8i\n' % ('no annotation', self.num_image_without_annotation)
         return string_text
+
+    def split(self, rate_split=0.8):
+        """
+        This function used to split dataset that become the train-set and the val-set
+        :param rate_split: The rate which decide to divide a dataset 0.8 - train - 0.2 - val
+        :return:
+        """
+        reader_split_one = BaseReader()
+        reader_split_one.gt_path = self.gt_path
+        reader_split_one.image_path = self.image_path
+        reader_split_one.classes = self.classes
+
+        reader_split_two = BaseReader()
+        reader_split_two.gt_path = self.gt_path
+        reader_split_two.image_path = self.image_path
+        reader_split_two.classes = self.classes
+
+        number_sample = int(round(rate_split * len(self.image_names)))
+        reader_split_one.image_names = self.image_names[:number_sample]
+        reader_split_two.image_names = self.image_names[number_sample:]
+
+        reader_split_one.data_annotation = self.data_annotation[:number_sample]
+        reader_split_two.data_annotation = self.data_annotation[number_sample:]
+
+        reader_split_one.statistics_data()
+        reader_split_two.statistics_data()
+        return reader_split_one, reader_split_two

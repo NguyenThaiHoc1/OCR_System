@@ -1,6 +1,8 @@
 import os
-import numpy as np
 from xml.etree import ElementTree
+
+import numpy as np
+
 from UtlisData.base_reader import BaseReader
 
 
@@ -36,7 +38,7 @@ class ReaderVOC(BaseReader):
             image_name = root.find('filename').text
             for object_tree in root.findall('object'):
                 class_name = object_tree.find('name').text
-                class_idx = self.classes_lower.index(class_name)
+                class_idx = self.class_lower.index(class_name)
                 for bbox in object_tree.findall('bndbox'):
                     xmin = float(bbox.find('xmin').text) / img_width
                     ymin = float(bbox.find('ymin').text) / img_height
@@ -51,3 +53,8 @@ class ReaderVOC(BaseReader):
         self.statistics_data()
 
 
+if __name__ == '__main__':
+    reader = ReaderVOC(data_path='../dataset_OD/VOC_Dataset/VOCtrainval_06-Nov-2007/VOCdevkit/VOC2007/')
+    reader1, reader2 = reader.split(rate_split=0.7)
+    print(reader1)
+    print(reader2)
