@@ -59,7 +59,7 @@ class BaseReader(object):
         That function show all information of dataset
         :return: None
         """
-        if not hasattr(self, 'list_statlabels'):
+        if not hasattr(self, 'list_statlabels') or self.list_statlabels is None:
             self.statistics_data()
 
         string_text = ''

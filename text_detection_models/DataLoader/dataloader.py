@@ -1,17 +1,17 @@
-import numpy as np
-import tensorflow as tf
-
-
 class DataGenerator(object):
-    def __init__(self, reader, batch_size, image_size):
+    def __init__(self):
         self.__dict__.update(locals())  # avoid to self.properties
 
         # parameter input
-        self.reader = reader
-        self.batch_size = batch_size
-        self.image_size = image_size
+        self.reader = None
+        self.batch_size = None
+        self.image_size = None
 
         # parameter init
+        self.num_batches = None
+        self.num_samples = None
+
+    def setup_number(self):
         self.num_batches = self.reader.num_samples // self.batch_size
         self.num_samples = self.num_batches * self.batch_size
 
@@ -28,21 +28,21 @@ class DataGenerator(object):
         s += f % ('num_samples', self.reader.num_samples)
         return s
 
-    def _get_sample(self, idx, encode=True, debug=False):
-        return idx, 23.0
+    def _get_process(self, idx, encode=True, debug=False):
+        """
+        That function used to process data. It is lambda function or function default
+        :param idx: the number of sort image that it used to get image from index
+        :param encode:
+        :param debug: debug image parameter
+        :return: None
+        """
+        raise NotImplementedError
 
-    @tf.function
-    def get_tf_dataset(self, num_parallel_calls=-1, seed=1337):
-        def _process_tf_dataset(index):
-            return tf.py_function(self._get_sample, inp=[index, ], Tout=[tf.int64, tf.float32])
+    def get_datagenerator(self, num_parallel_calls=-1, seed=1337):
+        """
 
-        if seed is not None:
-            np.random.seed(seed)
-            tf.random.set_seed(seed)
-
-        dataset = tf.data.Dataset.range(self.num_samples).shuffle(self.num_samples)
-        dataset = dataset.map(_process_tf_dataset, num_parallel_calls=num_parallel_calls, deterministic=False)
-        dataset = dataset.batch(self.batch_size)
-        dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
-        dataset = dataset.repeat()
-        return dataset
+        :param num_parallel_calls:
+        :param seed:
+        :return:
+        """
+        raise NotImplementedError
