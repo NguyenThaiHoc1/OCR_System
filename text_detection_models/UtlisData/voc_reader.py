@@ -56,5 +56,6 @@ class ReaderVOC(BaseReader):
 if __name__ == '__main__':
     reader = ReaderVOC(data_path='../dataset_OD/VOC_Dataset/VOCtrainval_06-Nov-2007/VOCdevkit/VOC2007/')
     reader1, reader2 = reader.split(rate_split=0.7)
+
     print(reader1)
     print(reader2)

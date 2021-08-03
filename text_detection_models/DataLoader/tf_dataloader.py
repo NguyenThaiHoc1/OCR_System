@@ -30,5 +30,5 @@ class TFDataLoader(DataGenerator):
         dataset = dataset.map(_process_tf_dataset, num_parallel_calls=num_parallel_calls, deterministic=False)
         dataset = dataset.batch(self.batch_size)
         dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
-        dataset = dataset.repeat()
+        dataset = dataset.repeat(-1)
         return dataset

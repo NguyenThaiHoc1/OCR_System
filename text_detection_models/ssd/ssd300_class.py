@@ -7,9 +7,9 @@ from ssd.utlis.utilis import PriorUtil
 
 
 class SSDModel(Model):
-    def __init__(self, backbone, input_tensor):
+    def __init__(self, input_tensor, backbone, num_classes):
         super(SSDModel, self).__init__()
-        self.backbone = backbone(input_tensor)
+        self.backbone = backbone(input_tensor, num_class=num_classes, show=False)
         self.process_rec = PriorUtil(self.backbone)
 
     @tf.function
@@ -24,5 +24,5 @@ class SSDModel(Model):
 # test
 if __name__ == '__main__':
     input_tensor = Input(shape=(300, 300, 3))
-    model = SSDModel(backbone=create_model_ssd300, input_tensor=input_tensor)
+    model = SSDModel(backbone=create_model_ssd300, input_tensor=input_tensor, num_classes=21)
     print(model(input_tensor))
