@@ -25,14 +25,18 @@ class TFTrainer(BaseTrainer):
         if self.train_reader is None or self.validate_reader is None:
             raise ValueError("You need update train reader or validate reader")
 
-        self.train_generator = TFDataLoader(reader=self.train_reader, batch_size=self.batch_size,
+        self.train_generator = TFDataLoader(reader=self.train_reader,
+                                            process_box=self.model.process_rec,
+                                            batch_size=self.batch_size,
                                             image_size=self.model.backbone.image_size)
 
-        self.validate_generator = TFDataLoader(reader=self.validate_reader, batch_size=self.batch_size,
+        self.validate_generator = TFDataLoader(reader=self.validate_reader,
+                                               process_box=self.model.process_rec,
+                                               batch_size=self.batch_size,
                                                image_size=self.model.backbone.image_size)
 
     def _setup_optimizers_training(self):
-        self.optimizer = tf.keras.optimizers.Adam(lr=self.learning_rate,
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate,
                                                   beta_1=0.9, beta_2=0.999,
                                                   epsilon=1e-08, decay=0.0)
 

@@ -115,7 +115,7 @@ def create_model_ssd300(input_layer, name_model="ssd300", num_class=21, include_
     model = Model(input_layer, output_tensor, name=name_model)
 
     model.num_classes = num_class
-    model.image_size = input_layer[:2]
+    model.image_size = input_layer.shape[1:3]
     model.source_layers = source_layers
     model.aspect_ratios = [[1, 2, 1 / 2],
                            [1, 2, 1 / 2, 3, 1 / 3],
@@ -140,4 +140,5 @@ if __name__ == '__main__':
     input_shape = (300, 300, 3)
     input_layer = Input(shape=input_shape)
     model = create_model_ssd300(input_layer)
-    PriorUtil(model)
+    print(model.image_size)
+    # PriorUtil(model)

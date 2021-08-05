@@ -6,6 +6,7 @@ class DataGenerator(object):
         self.reader = None
         self.batch_size = None
         self.image_size = None
+        self.augmentation = None
 
         # parameter init
         self.num_batches = None

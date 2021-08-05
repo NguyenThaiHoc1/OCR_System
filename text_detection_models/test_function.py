@@ -13,5 +13,8 @@ if __name__ == '__main__':
     input_tensor = tf.keras.layers.Input(shape=(300, 300, 3))
     model = SSDModel(input_tensor=input_tensor, backbone=create_model_ssd300, num_classes=reader.num_classes)
 
-    trainer = TFTrainer(epoch=4, batch_size=32, train_reader=reader_train, validate_reader=reader_validate, model=model)
+    trainer = TFTrainer(epoch=4, batch_size=32, lr=1e-4,
+                        train_reader=reader_train,
+                        validate_reader=reader_validate,
+                        model=model)
     trainer.trainer()
