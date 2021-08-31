@@ -16,5 +16,6 @@ if __name__ == '__main__':
     trainer = TFTrainer(epoch=4, batch_size=32, lr=1e-4,
                         train_reader=reader_train,
                         validate_reader=reader_validate,
+                        logdir='./logs/',
                         model=model)
     trainer.trainer()

@@ -37,6 +37,10 @@ class TFDataLoader(DataGenerator):
         if self.augmentation:
             raise NotImplementedError
 
+        # encoding annotations
+        if encode:
+            target = self.process_box.encode(target)
+
         img = cv2.resize(img, (w, h), cv2.INTER_LINEAR)
         img = img.astype(np.float32)
 
@@ -44,9 +48,6 @@ class TFDataLoader(DataGenerator):
         # docs: https://www.pyimagesearch.com/2017/11/06/deep-learning-opencvs-blobfromimage-works/
         mean = np.array([104, 117, 123])
         img -= mean
-
-        if encode:
-            target = self.process_box.encode(target)
 
         return img, target
 

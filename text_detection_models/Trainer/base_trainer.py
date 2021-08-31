@@ -7,6 +7,8 @@ class BaseTrainer(object):
         self.batch_size = None
         self.learning_rate = None
         self.model = None
+        self.loss = None
+        self.metrics = None
 
         # parameter
         self.train_generator = None
@@ -32,16 +34,22 @@ class BaseTrainer(object):
     def _setup_required_parameter_training(self):
         raise NotImplementedError
 
+    def _setup_loss_function(self):
+        raise NotImplementedError
+
     def _setup_optimizers_training(self):
+        raise NotImplementedError
+
+    def _setup_metrics(self):
         raise NotImplementedError
 
     def _reset_state(self):
         raise NotImplementedError
 
-    def _training_step(self):
+    def _training_step(self, iteritor_train, trainable):
         raise NotImplementedError
 
-    def _validate_step(self):
+    def _validate_step(self, iteritor_validate, trainable):
         raise NotImplementedError
 
     def trainer(self):

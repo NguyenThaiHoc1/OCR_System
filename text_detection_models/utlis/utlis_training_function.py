@@ -1,4 +1,5 @@
 import tensorflow as tf
+import tensorflow.keras.backend as K
 
 
 def softmax_function(array):
@@ -14,7 +15,23 @@ def softmax_function(array):
 
 def loss_softmax(y_predict, y_true):
     y_predict_softmax = softmax_function(y_predict)
-    return tf.reduce_sum(- (y_true * tf.math.log(y_predict_softmax)), axis=1)
+    return - tf.reduce_sum(y_true * tf.math.log(y_predict_softmax), axis=-1)
+
+
+def softmax_loss(y_true, y_pred):
+    """Compute cross entropy loss aka softmax loss.
+    # Arguments
+        y_true: Ground truth targets,
+            tensor of shape (?, num_boxes, num_classes).
+        y_pred: Predicted logits,
+            tensor of shape (?, num_boxes, num_classes).
+    # Returns
+        loss: Softmax loss, tensor of shape (...)
+    """
+    eps = K.epsilon()
+    y_pred = K.clip(y_pred, eps, 1. - eps)
+    loss = - y_true * K.log(y_pred)
+    return tf.reduce_sum(loss, axis=-1)
 
 
 def smooth_l1_loss(y_predict, y_true):
@@ -34,7 +51,7 @@ def smooth_l1_loss(y_predict, y_true):
     express_1 = 0.5 * (x ** 2)
     express_2 = x - 0.5
     loss = tf.where(x < beta, express_1, express_2)
-    return tf.reduce_sum(loss, axis=1)
+    return loss
 
 
 if __name__ == '__main__':
@@ -47,4 +64,7 @@ if __name__ == '__main__':
                   [1, 0, 0, 0]])
 
     a = loss_softmax(x, y)
+    b = softmax_loss(y, x)
     print(a)
+    print(b)
+    # tf.Tensor([ 8.4 24.1], shape=(2,), dtype=float64)
