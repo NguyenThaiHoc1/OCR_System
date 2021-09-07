@@ -23,6 +23,7 @@ class Metrics(object):
 
         self.t0 = None
         self.t1 = None
+        self.t2 = None
         self.steps = None
         self.steps_val = None
 
@@ -62,6 +63,7 @@ class Metrics(object):
     def update(self, values, training=True):
         metric_values = {name: float(value) for name, value in values.items() if value is not None}
         if training:
+            self.t2 = time.time()
             self.steps += 1
             for name, value in metric_values.items():
                 self.metrics[name].update_state(value)
@@ -131,13 +133,14 @@ class Metrics(object):
                 dataframe.to_csv(f, header=f.tell() == 0, index=False)
 
         if verbose:
+            t1, t2 = self.t1, self.t2
             time_end_epoch = time.time()
             for name, value in self.history.items():
                 s = "%s - %5.5f "
                 print(s % (name, value[-1]), end='')
 
-            minutes_epoch = (time_end_epoch - self.t1) / 60
-            iteritor_second = self.steps / (self.t2 - self.t1)  # each iteritor from Dataset
+            minutes_epoch = (time_end_epoch - t1) / 60
+            iteritor_second = self.steps / (t2 - t1)  # each iteritor from Dataset
             string_time = "\n%.1f minutes/epoch - %.2f iter/second" % (minutes_epoch, iteritor_second)
             print(string_time)
 

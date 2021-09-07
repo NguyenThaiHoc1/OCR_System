@@ -1,0 +1,8 @@
+{
+  "Converted": {
+    "model_proto": "./weights/models/VGGNet/VOC0712/SSD_300x300_ft/deploy.prototxt",
+    "model_weights": "./weights/models/VGGNet/VOC0712/SSD_300x300_ft/VGG_VOC0712_SSD_300x300_ft_iter_120000.caffemodel",
+    "weight_output": "./weights/models/ssd300_voc_weights.hdf5",
+    "shape_output": "./weights/models/ssd300_voc_shape.pkl"
+  }
+}

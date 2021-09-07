@@ -1,0 +1,21 @@
+{
+  "Dataset": {
+    "dataset_path": "./dataset_OD/VOC_Dataset/VOCtrainval_06-Nov-2007/VOCdevkit/VOC2007/",
+    "rate_split": 0.8
+  },
+  "Architecture": {
+    "backbone_model": "ssd300",
+    "input_shape": "300, 300, 3",
+    "epoch": 4,
+    "batch_size": 32,
+    "learning_rate": 1e-4,
+    "regularizer": 5e-4
+  },
+  "Logger": {
+    "logdir": "./logs/",
+    "checkdir": "./checkpoints/"
+  },
+  "Tensorboard": {
+    "writter_path": "./tensorboard/"
+  }
+}

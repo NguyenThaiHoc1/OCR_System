@@ -1,3 +1,4 @@
+import os
 import time
 
 import tensorflow as tf
@@ -5,12 +6,19 @@ from tqdm import tqdm
 
 from DataLoader.tf_dataloader import TFDataLoader
 from Trainer.base_trainer import BaseTrainer
+from Visualization.tensorboard import WritterTB
 from ssd.loss_function.ssd_loss import SSDLoss
 from utlis.utlis_training_metrics_show import Metrics
 
 
 class TFTrainer(BaseTrainer):
-    def __init__(self, epoch, batch_size, lr, train_reader, validate_reader, logdir, model):
+    def __init__(self, epoch, batch_size, lr,
+                 train_reader, validate_reader,
+                 logdir, save_model_path,
+                 model,
+                 writter_path,
+                 weight_path,
+                 regularizer=5e-4):
         super(TFTrainer, self).__init__()
         self.epoch = epoch
         self.batch_size = batch_size
@@ -20,12 +28,24 @@ class TFTrainer(BaseTrainer):
         self.learning_rate = lr
 
         self.check_logidr = logdir
+        self.save_model = save_model_path
+        self.writter_path = writter_path
+        self.weight_path = weight_path
+
+        # writter
+        self.train_writter = None
+        self.validate_writter = None
+
+        if regularizer > 0:
+            self._setup_regularizer_2layer(value=regularizer)
 
         self._setup_required_parameter_training()
         self._setup_loss_function()
         self._setup_optimizers_training()
-        self._setup_regularizer_2layer()
         self._setup_metrics()
+        self._setup_save_weight()
+        self._setup_visualization()
+        self._loading_weight_2architecture()
 
     def _setup_required_parameter_training(self):
         if self.train_reader is None or self.validate_reader is None:
@@ -42,7 +62,7 @@ class TFTrainer(BaseTrainer):
                                                image_size=self.model.backbone.image_size)
 
     def _setup_loss_function(self):
-        self.loss = SSDLoss()
+        self.loss = SSDLoss(alpha=1.0, aspect_ratio=3)
 
     def _setup_optimizers_training(self):
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate,
@@ -60,8 +80,49 @@ class TFTrainer(BaseTrainer):
     def _setup_metrics(self):
         self.metrics = Metrics(names=self.loss.metric_names, logdir=self.check_logidr)
 
-    def _reset_state(self):
-        raise NotImplementedError
+    def _setup_save_weight(self):
+        if not os.path.exists(self.save_model):
+            os.makedirs(self.save_model)
+
+        print(f">> Model's checkpoint will save at: {self.save_model}")
+
+    def _setup_visualization(self):
+        import datetime
+        current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        path_train_writter = os.path.join(self.writter_path, current_time, "train")
+        path_validate_writter = os.path.join(self.writter_path, current_time, "validate")
+
+        self.train_writter = WritterTB(path_writter=path_train_writter)
+        self.validate_writter = WritterTB(path_writter=path_validate_writter)
+
+    def _save_model(self, epoch):
+        self.model.save_weights(self.save_model + '/weights.%03i.h5' % (epoch + 1,))
+
+    def _writting_result_2tensorboard(self, epoch):
+        # writing confident loss
+        self.train_writter.writing_values(name='loss/confident_loss', epoch=epoch,
+                                          result=self.metrics.metrics["sum_confident_loss"].result())
+
+        self.validate_writter.writing_values(name='loss/confident_loss', epoch=epoch,
+                                             result=self.metrics.metrics_val["sum_confident_loss"].result())
+
+        # writting localization loss
+        self.train_writter.writing_values(name='loss/localization_loss', epoch=epoch,
+                                          result=self.metrics.metrics["pos_loc_loss"].result())
+
+        self.validate_writter.writing_values(name='loss/localization_loss', epoch=epoch,
+                                             result=self.metrics.metrics_val["pos_loc_loss"].result())
+
+        # writting accuracy loss
+        self.train_writter.writing_values(name='accuracy', epoch=epoch,
+                                          result=self.metrics.metrics["accuracy"].result())
+
+        self.validate_writter.writing_values(name='accuracy', epoch=epoch,
+                                             result=self.metrics.metrics_val["accuracy"].result())
+
+    def _loading_weight_2architecture(self):
+        assert not os.path.exists(self.weight_path), "You need to prodive your model weight"
+        self.model.load_weights(self.weight_path, by_name=True)
 
     @tf.function
     def _training_step(self, iteritor_train, trainable):
@@ -79,7 +140,9 @@ class TFTrainer(BaseTrainer):
     @tf.function
     def _validate_step(self, iteritor_validate, trainable):
         data = next(iteritor_validate)
-        return data
+        predict = self.model(data[0], training=trainable)
+        metric_values = self.loss.compute(y_predict=predict, y_true=data[1])
+        return metric_values
 
     def trainer(self):
 
@@ -97,12 +160,19 @@ class TFTrainer(BaseTrainer):
                 self.metrics.update(values=metric_values, training=True)
             time.sleep(1)
 
-            # for index in tqdm(range(self.validate_generator.num_batches), f'* Validate Epoch {epoch + 1}', position=0,
-            #                   leave=True):
-            #     metric_values = self._validate_step(iteritor_validate, trainable=False)
-            #     self.metrics.update(values=metric_values, training=False)
-            # time.sleep(1)
+            for index in tqdm(range(self.validate_generator.num_batches), f'* Validate Epoch {epoch + 1}', position=0,
+                              leave=True):
+                metric_values = self._validate_step(iteritor_validate, trainable=False)
+                self.metrics.update(values=metric_values, training=False)
+            time.sleep(1)
 
+            # saving model
+            self._save_model(epoch=epoch)
+
+            # writting result to tensorboard for each epoch
+            self._writting_result_2tensorboard(epoch=epoch)
+
+            # End of epoch
             self.metrics.end_epoch(verbose=True)
 
-        print("Done Training ---->")
+        print("Done Training! ")
