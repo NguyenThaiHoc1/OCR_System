@@ -1,8 +1,12 @@
 venv
 .idea
 text_detection_models/dataset_OD/*
-test.py
 text_detection_models/logs
+text_detection_models/tensorboard
+text_detection_models/checkpoints
+text_detection_models/ssd/__pycache__/
+text_detection_models/ssd/utlis/__pycache__/
+
 Convert_caffe_model/weights/*
 *__pycache__
 .DS_Store
