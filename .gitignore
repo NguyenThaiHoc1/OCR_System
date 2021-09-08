@@ -1,0 +1,11 @@
+venv
+.idea
+text_detection_models/dataset_OD/*
+test.py
+text_detection_models/logs
+
+
+Convert_caffe_model/weights/*
+Convert_caffe_model/models/*
+*__pycache__
+.DS_Store
