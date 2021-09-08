@@ -205,31 +205,16 @@ def compare_weights_shape(model, shape_file):
                 # print('%-30s \n%-40s \n%-40s' % (layer.name, shape_caffe, shape_keras))
 
 
-def read_config(path):
-    """
-    This function to read configurate of program
-    :param path:
-    :return:
-    """
-    f = open(path, 'r')
-    data = json.load(f)
-    f.close()
-    return data
-
-
 if __name__ == '__main__':
-    root_path = os.getcwd()
-    config_path = "config"
-    config_dictionary = read_config(os.path.join(root_path, config_path, "config.json"))
-    caffe_home = os.path.join(root_path, "ssd")
+    from config import config
 
-    if os.path.exists(caffe_home):
-        os.rmdir(caffe_home)
+    if os.path.exists(config.CAFFE_HOME):
+        os.rmdir(config.CAFFE_HOME)
     else:
-        os.makedirs(caffe_home)
+        os.makedirs(config.CAFFE_HOME)
 
-    model_proto = config_dictionary["Converted"]["model_proto"]
-    model_weights = config_dictionary["Converted"]["model_weights"]
-    weight_output = config_dictionary["Converted"]["weight_output"]
-    shape_output = config_dictionary["Converted"]["shape_output"]
-    dump_weights(model_proto, model_weights, weight_output, shape_output, caffe_home=caffe_home)
+    model_proto = config.MODEL_PROTO
+    model_weights = config.MODEL_WEIGHTS
+    weight_output = config.OUTPUT_WEIGHTS
+    shape_output = config.OUTPUT_SHAPE
+    dump_weights(model_proto, model_weights, weight_output, shape_output, caffe_home=config.CAFFE_HOME)
