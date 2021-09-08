@@ -48,6 +48,9 @@ if __name__ == '__main__':
                         train_reader=reader_train,
                         validate_reader=reader_validate,
                         logdir=str(config["Logger"]["logdir"]),
-                        model=model, writter_path=str(config["Tensorboard"]["writter_path"]),
+                        model=model,
+                        writter_path=str(config["Tensorboard"]["writter_path"]),
+                        weight_path=None,
+                        save_model_path=str(config["Logger"]["checkdir"]),
                         regularizer=float(config["Architecture"]["regularizer"]))
     trainer.trainer()

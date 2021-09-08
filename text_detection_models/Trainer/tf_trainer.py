@@ -17,7 +17,7 @@ class TFTrainer(BaseTrainer):
                  logdir, save_model_path,
                  model,
                  writter_path,
-                 weight_path,
+                 weight_path=None,
                  regularizer=5e-4):
         super(TFTrainer, self).__init__()
         self.epoch = epoch
@@ -45,7 +45,9 @@ class TFTrainer(BaseTrainer):
         self._setup_metrics()
         self._setup_save_weight()
         self._setup_visualization()
-        self._loading_weight_2architecture()
+
+        if self.weight_path is not None:
+            self._loading_weight_2architecture()
 
     def _setup_required_parameter_training(self):
         if self.train_reader is None or self.validate_reader is None:

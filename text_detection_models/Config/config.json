@@ -1,6 +1,6 @@
 {
   "Dataset": {
-    "dataset_path": "./dataset_OD/VOC_Dataset/VOCtrainval_06-Nov-2007/VOCdevkit/VOC2007/",
+    "dataset_path": "./dataset_OD/VOCdevkit/VOC2007/",
     "rate_split": 0.8
   },
   "Architecture": {
