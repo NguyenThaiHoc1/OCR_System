@@ -113,7 +113,7 @@ def dump_weights(model_proto, model_weights, weight_output, shape_output=None, c
     # output model shape
     if shape_output is not None:
         output_shape = {}
-        for layer_name, blob in net.blobs.iteritems():
+        for layer_name, blob in net.blobs.items():
             # print('%-40s %s' %(layer_name, str(blob.data.shape)))
             output_shape[layer_name] = blob.data.shape
 
