@@ -1,0 +1,20 @@
+để run được project Convert caffe model
+ - Download caffe at: https://github.com/weiliu89/caffe
+   + Use Cuda9.2
+   + Instruction project instructed at google colab "Settingup_cuda.ipynb"
+
+ - Setup colab
+   + we must be link cuda9.2 >> cuda (we must download Cuda version that we need)
+
+ - Modifilies Caffe config
+   + At Makefile.config we must edit:
+     * PYTHON_INCLUDE := /usr/include/python3.7 \
+		/usr/local/lib/python3.7/dist-packages/numpy/core/include/
+	 * Uncomment PYTHON_LIBRARIES := boost_python3 python3.7m
+   Warning: we must be checked python version and prodive information path accurate (python -m site)
+
+ - About Project to run convert
+   + Wew must be modifies some line:
+     * save_output_param {
+      label_map_file: "/content/caffe/data/VOC0712/labelmap_voc.prototxt"
+     } # label_map_file: A Path go through caffe data label (Not your project)
