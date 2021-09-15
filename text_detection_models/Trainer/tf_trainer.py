@@ -48,6 +48,25 @@ class TFTrainer(BaseTrainer):
 
         if self.weight_path is not None:
             self._loading_weight_2architecture()
+            # frozen
+            freeze_layer = [
+                'conv1_1', 'conv1_2',
+                'conv2_1', 'conv2_2',
+                'conv3_1', 'conv3_2', 'conv3_3',
+                'conv4_1', 'conv4_2', 'conv4_3',
+                'conv5_1', 'conv5_2', 'conv5_3'
+            ]
+            self._setup_frozen_layer(freeze_layer=freeze_layer)
+
+        print("Setting up complete !!")
+
+    def _setup_frozen_layer(self, freeze_layer):
+        print("Frozen Graph: ")
+        for layer in self.model.backbone.layers:
+            layer.trainable = not layer.name in freeze_layer
+
+            if layer.name in freeze_layer:
+                print(f"Layer name frozened: {layer.name}")
 
     def _setup_required_parameter_training(self):
         if self.train_reader is None or self.validate_reader is None:
@@ -71,11 +90,10 @@ class TFTrainer(BaseTrainer):
                                                   beta_1=0.9, beta_2=0.999,
                                                   epsilon=1e-08, decay=0.0)
 
-    def _setup_regularizer_2layer(self, value=5e-4, freeze_layer=[]):
+    def _setup_regularizer_2layer(self, value=5e-4):
         self.regularizer = tf.keras.regularizers.l2(value)
 
         for layer in self.model.backbone.layers:
-            layer.trainable = not layer.name in freeze_layer
             if self.regularizer and layer.__class__.__name__.startswith('Conv'):
                 self.model.backbone.add_loss(lambda la=layer: self.regularizer(la.kernel))
 
@@ -123,8 +141,8 @@ class TFTrainer(BaseTrainer):
                                              result=self.metrics.metrics_val["accuracy"].result())
 
     def _loading_weight_2architecture(self):
-        assert not os.path.exists(self.weight_path), "You need to prodive your model weight"
-        self.model.load_weights(self.weight_path, by_name=True)
+        assert os.path.exists(self.weight_path), "You need to prodive your model weight"
+        self.model.backbone.load_weights(self.weight_path, by_name=True)
 
     @tf.function
     def _training_step(self, iteritor_train, trainable):
