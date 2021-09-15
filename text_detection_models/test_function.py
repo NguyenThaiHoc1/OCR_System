@@ -50,7 +50,7 @@ if __name__ == '__main__':
                         logdir=str(config["Logger"]["logdir"]),
                         model=model,
                         writter_path=str(config["Tensorboard"]["writter_path"]),
-                        weight_path=None,
+                        weight_path=str(config["Architecture"]["weight_path"]),
                         save_model_path=str(config["Logger"]["checkdir"]),
                         regularizer=float(config["Architecture"]["regularizer"]))
     trainer.trainer()
