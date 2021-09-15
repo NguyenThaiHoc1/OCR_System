@@ -208,6 +208,13 @@ def compare_weights_shape(model, shape_file):
 if __name__ == '__main__':
     from config import config
 
+    """
+        
+        Acces File deploy.prototxt modifies to 
+         + label_map_file: "/content/caffe/data/VOC0712/labelmap_voc.prototxt"
+         Warning: caffe is folder you got from project 
+    """
+
     if os.path.exists(config.CAFFE_HOME):
         os.rmdir(config.CAFFE_HOME)
     else:
