@@ -1,18 +1,10 @@
-import os
-import time
 import tensorflow as tf
 
+from Config.setting import cfg
 from Trainer.tf_trainer import TFTrainer
 from UtlisData.voc_reader import ReaderVOC
 from ssd.ssd300 import create_model_ssd300
 from ssd.ssd300_class import SSDModel
-from utlis.utlis_other_function import *
-
-
-def get_path_atmain():
-    root = os.getcwd()
-    config_path = os.path.join(root, "Config", "config.json")
-    return config_path
 
 
 def check_model_use(text):
@@ -25,32 +17,26 @@ def check_model_use(text):
 
 
 if __name__ == '__main__':
-    path_config = get_path_atmain()
-    config = read_config(path=path_config)
+    reader = ReaderVOC(data_path=cfg.DATASET.DATASET_PATH)
+    reader_train, reader_validate = reader.split(rate_split=cfg.DATASET.RATE_SPLIT)
 
-    reader = ReaderVOC(data_path=str(config["Dataset"]["dataset_path"]))
-    reader_train, reader_validate = reader.split(rate_split=float(config["Dataset"]["rate_split"]))
-
-    input_tensor = tf.keras.layers.Input(shape=convert_tuple_from_string(config["Architecture"]["input_shape"]))
-
-    backbone_model = check_model_use(config["Architecture"]["backbone_model"])
+    backbone_model = check_model_use(cfg.ARCHITECTURE.BACKBONE_MODEL)
     assert backbone_model is not None, "Please check ID of Backbone model"
 
-    checkdir = str(config["Logger"]["checkdir"]) + time.strftime('%Y%m%d%H%M') + '_' + config["Architecture"]["backbone_model"]
-
+    input_tensor = tf.keras.layers.Input(shape=cfg.ARCHITECTURE.INPUT_SHAPE)
     model = SSDModel(input_tensor=input_tensor,
                      backbone=create_model_ssd300,
                      num_classes=reader.num_classes)
 
-    trainer = TFTrainer(epoch=int(config["Architecture"]["epoch"]),
-                        batch_size=int(config["Architecture"]["batch_size"]),
-                        lr=float(config["Architecture"]["learning_rate"]),
+    trainer = TFTrainer(epoch=cfg.ARCHITECTURE.EPOCH,
+                        batch_size=cfg.ARCHITECTURE.BATCH_SIZE,
+                        lr=cfg.ARCHITECTURE.LEARNING_RATE,
                         train_reader=reader_train,
                         validate_reader=reader_validate,
-                        logdir=str(config["Logger"]["logdir"]),
+                        logdir=cfg.LOGGER.LOGDIR,
                         model=model,
-                        writter_path=str(config["Tensorboard"]["writter_path"]),
-                        weight_path=str(config["Architecture"]["weight_path"]),
-                        save_model_path=str(config["Logger"]["checkdir"]),
-                        regularizer=float(config["Architecture"]["regularizer"]))
+                        writter_path=cfg.TENSORBOARD.WRITTER_PATH,
+                        weight_path=cfg.ARCHITECTURE.WEIGHT_PATH,
+                        save_model_path=cfg.LOGGER.CHECKDIR,
+                        regularizer=cfg.ARCHITECTURE.REGULARIZER)
     trainer.trainer()
