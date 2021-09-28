@@ -51,8 +51,6 @@ class TFDataLoader(DataGenerator):
 
         return img, target
 
-
-    @tf.function
     def get_datagenerator(self, num_parallel_calls=-1, seed=1337):
         def _process_tf_dataset(index):
             return tf.py_function(self._get_process, inp=[index, ], Tout=[tf.float32, tf.float32])
